@@ -28,29 +28,17 @@
         </tasks>
     </script>
 
-<script id="xsltData" type="text/xml">
+<<script id="xsltData" type="text/xml">
     <?xml version="1.0" encoding="UTF-8"?>
-    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
         <xsl:output method="html" encoding="UTF-8" indent="yes"/>
         <xsl:param name="date-time"/>
 
-        <!-- Template to add minutes to the date-time -->
+        <!-- Simple output of the date-time parameter for debugging -->
         <xsl:template name="add-minutes">
             <xsl:param name="dateTime"/>
             <xsl:param name="minutes"/>
-            
-            <!-- Variables for datetime calculations -->
-            <xsl:variable name="originalDateTime" select="xs:dateTime($dateTime)"/>
-            <xsl:variable name="duration" select="xs:dayTimeDuration(concat('PT', $minutes, 'M'))"/>
-            <xsl:variable name="newDateTime" select="$originalDateTime + $duration"/>
-            
-            <!-- Format new datetime for display -->
-            <xsl:value-of select="concat(
-                format-number(substring($newDateTime, 1, 4), '0000'), '-', 
-                format-number(substring($newDateTime, 6, 2), '00'), '-', 
-                format-number(substring($newDateTime, 9, 2), '00'), 'T',
-                format-number(substring($newDateTime, 12, 2), '00'), ':', 
-                format-number(substring($newDateTime, 15, 2), '00'))"/>
+            <xsl:value-of select="$dateTime"/>
         </xsl:template>
 
         <xsl:template match="/">
