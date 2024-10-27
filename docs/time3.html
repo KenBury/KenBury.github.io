@@ -30,9 +30,21 @@
 
 <script id="xsltData" type="text/xml">
     <?xml version="1.0" encoding="UTF-8"?>
-    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:date="http://exslt.org/dates-and-times">
         <xsl:output method="html" encoding="UTF-8" indent="yes"/>
         <xsl:param name="date-time"/>
+
+        <!-- Example function to add minutes to the input date-time -->
+        <xsl:template name="add-minutes">
+            <xsl:param name="dateTime"/>
+            <xsl:param name="minutes"/>
+
+            <xsl:variable name="newDateTime">
+                <xsl:value-of select="date:add($dateTime, date:minutes-to-duration($minutes))"/>
+            </xsl:variable>
+
+            <xsl:value-of select="$newDateTime"/>
+        </xsl:template>
 
         <xsl:template match="/">
             <table id="taskTable" class="display">
@@ -50,7 +62,10 @@
                             <td><xsl:value-of select="id"/></td>
                             <td><xsl:value-of select="name"/></td>
                             <td>
-                                <input type="datetime-local" value="{$date-time}"/>
+                                <input type="datetime-local" value="{call-template name='add-minutes'}">
+                                    <xsl:with-param name="dateTime" select="$date-time"/>
+                                    <xsl:with-param name="minutes" select="120"/> <!-- Example: Add 120 minutes -->
+                                </input>
                             </td>
                             <td><xsl:value-of select="description" disable-output-escaping="yes"/></td>
                         </tr>
@@ -60,6 +75,7 @@
         </xsl:template>
     </xsl:stylesheet>
 </script>
+
 
 
     <script>
