@@ -62,59 +62,63 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log("Document loaded");
-        
+
             var xmlContent = document.getElementById('xmlData').innerHTML.trim();
             var xsltContent = document.getElementById('xsltData').innerHTML.trim();
-        
+
             var parser = new DOMParser();
             var xml = parser.parseFromString(xmlContent, "text/xml");
             var xslt = parser.parseFromString(xsltContent, "text/xml");
-        
+
             if (xml.getElementsByTagName("parsererror").length > 0) {
                 console.error("XML Parsing Error: " + xml.getElementsByTagName("parsererror")[0].textContent);
             }
-        
+
             if (xslt.getElementsByTagName("parsererror").length > 0) {
                 console.error("XSLT Parsing Error: " + xslt.getElementsByTagName("parsererror")[0].textContent);
             }
-        
+
             var xsltProcessor = new XSLTProcessor();
             xsltProcessor.importStylesheet(xslt);
             console.log("XSLT Processor imported stylesheet");
-        
+
             document.getElementById('transform-button').addEventListener('click', function() {
                 console.log("Transform button clicked");
-                var dateTimeValue = document.getElementById('date-time-input').value;
+                var dateTimeInput = document.getElementById('date-time-input');
+                var dateTimeValue = dateTimeInput.value;
                 console.log("Date-time input value:", dateTimeValue);
-        
-                xsltProcessor.setParameter(null, 'date-time', dateTimeValue);
-                console.log("Set date-time parameter in XSLT Processor");
-        
-                var resultDocument = xsltProcessor.transformToFragment(xml, document);
-                if (!resultDocument) {
-                    console.error("XSLT transformation failed to produce output");
-                    return;
+
+                if (dateTimeValue) {
+                    xsltProcessor.setParameter(null, 'date-time', dateTimeValue);
+                    console.log("Set date-time parameter in XSLT Processor");
+
+                    var resultDocument = xsltProcessor.transformToFragment(xml, document);
+                    if (!resultDocument) {
+                        console.error("XSLT transformation failed to produce output");
+                        return;
+                    }
+
+                    var container = document.getElementById('result');
+                    container.innerHTML = '';
+                    container.appendChild(resultDocument);
+                    console.log("Result document appended to container");
+
+                    $('#taskTable').DataTable({
+                        pageLength: 10,
+                        order: [[0, 'asc']],
+                        columnDefs: [
+                            {
+                                targets: [3],
+                                orderable: false
+                            }
+                        ]
+                    });
+                    console.log("DataTable initialized");
+                } else {
+                    console.error("No date-time value provided");
                 }
-        
-                var container = document.getElementById('result');
-                container.innerHTML = '';
-                container.appendChild(resultDocument);
-                console.log("Result document appended to container");
-        
-                $('#taskTable').DataTable({
-                    pageLength: 10,
-                    order: [[0, 'asc']],
-                    columnDefs: [
-                        {
-                            targets: [3],
-                            orderable: false
-                        }
-                    ]
-                });
-                console.log("DataTable initialized");
             });
         });
-        </script>
-        
+    </script>
 </body>
 </html>
