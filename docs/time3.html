@@ -30,15 +30,29 @@
 
 <script id="xsltData" type="text/xml">
     <?xml version="1.0" encoding="UTF-8"?>
-    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
         <xsl:output method="html" encoding="UTF-8" indent="yes"/>
         <xsl:param name="date-time"/>
 
-        <!-- Basic function to output date-time -->
-        <xsl:template name="add-minutes">
+        <!-- Function to add hours to date-time -->
+        <xsl:template name="add-hours">
             <xsl:param name="dateTime"/>
-            <xsl:param name="minutes"/>
-            <xsl:value-of select="$dateTime"/>
+            <xsl:param name="hours"/>
+
+            <!-- Convert date-time to xs:dateTime -->
+            <xsl:variable name="originalDateTime" select="xs:dateTime($dateTime)"/>
+            <!-- Convert hours to xs:dayTimeDuration -->
+            <xsl:variable name="duration" select="xs:dayTimeDuration(concat('PT', $hours, 'H'))"/>
+            <!-- Calculate new date-time -->
+            <xsl:variable name="newDateTime" select="$originalDateTime + $duration"/>
+
+            <!-- Format new datetime for display -->
+            <xsl:value-of select="concat(
+                format-number(substring($newDateTime, 1, 4), '0000'), '-', 
+                format-number(substring($newDateTime, 6, 2), '00'), '-', 
+                format-number(substring($newDateTime, 9, 2), '00'), 'T',
+                format-number(substring($newDateTime, 12, 2), '00'), ':', 
+                format-number(substring($newDateTime, 15, 2), '00'))"/>
         </xsl:template>
 
         <xsl:template match="/">
@@ -57,9 +71,9 @@
                             <td><xsl:value-of select="id"/></td>
                             <td><xsl:value-of select="name"/></td>
                             <td>
-                                <xsl:call-template name="add-minutes">
+                                <xsl:call-template name="add-hours">
                                     <xsl:with-param name="dateTime" select="$date-time"/>
-                                    <xsl:with-param name="minutes" select="120"/>
+                                    <xsl:with-param name="hours" select="2"/> <!-- Example: Add 2 hours -->
                                 </xsl:call-template>
                             </td>
                             <td><xsl:value-of select="description" disable-output-escaping="yes"/></td>
