@@ -30,7 +30,7 @@
 
 <script id="xsltData" type="text/xml">
     <?xml version="1.0" encoding="UTF-8"?>
-    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:date="http://exslt.org/dates-and-times" exclude-result-prefixes="xs date">
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
         <xsl:output method="html" encoding="UTF-8" indent="yes"/>
         <xsl:param name="date-time" select="'2024-11-07T17:41'"/>
 
@@ -38,15 +38,8 @@
             <xsl:param name="dateTime"/>
             <xsl:param name="minutes"/>
 
-            <!-- Convert date-time to xs:dateTime -->
-            <xsl:variable name="originalDateTime" select="xs:dateTime($dateTime)"/>
-            <!-- Convert minutes to xs:dayTimeDuration -->
-            <xsl:variable name="duration" select="xs:dayTimeDuration(concat('PT', $minutes, 'M'))"/>
-            <!-- Calculate new date-time -->
-            <xsl:variable name="newDateTime" select="$originalDateTime + $duration"/>
-            
-            <!-- Format new date-time -->
-            <xsl:value-of select="concat(substring($newDateTime, 1, 19))"/>
+            <!-- Placeholder for date-time manipulation -->
+            <xsl:value-of select="$dateTime"/> <!-- Keeping it simple for debugging -->
         </xsl:template>
 
         <xsl:template match="/">
@@ -65,10 +58,10 @@
                             <td><xsl:value-of select="id"/></td>
                             <td><xsl:value-of select="name"/></td>
                             <td>
-                                <input type="datetime-local" value="{call-template name='add-minutes'}">
+                                <xsl:call-template name="add-minutes">
                                     <xsl:with-param name="dateTime" select="$date-time"/>
                                     <xsl:with-param name="minutes" select="120"/>
-                                </input>
+                                </xsl:call-template>
                             </td>
                             <td><xsl:value-of select="description" disable-output-escaping="yes"/></td>
                         </tr>
