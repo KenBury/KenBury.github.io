@@ -34,17 +34,20 @@
         <xsl:output method="html" encoding="UTF-8" indent="yes"/>
         <xsl:param name="date-time"/>
 
-        <!-- Simplified function to add minutes to date-time -->
+        <!-- Simple function to add minutes to date-time -->
         <xsl:template name="add-minutes">
             <xsl:param name="dateTime"/>
             <xsl:param name="minutes"/>
 
-            <!-- Try using duration directly for debugging -->
+            <!-- Output intermediate steps for debugging -->
             <xsl:variable name="originalDateTime" select="xs:dateTime($dateTime)"/>
-            <xsl:variable name="duration" select="xs:dayTimeDuration('PT2H')"/> <!-- Adding 2 hours for testing -->
-            <xsl:variable name="newDateTime" select="$originalDateTime + $duration"/>
+            <xsl:value-of select="concat('Original DateTime: ', $originalDateTime)"/><br/>
 
-            <xsl:value-of select="$newDateTime"/>
+            <xsl:variable name="duration" select="xs:dayTimeDuration(concat('PT', $minutes, 'M'))"/>
+            <xsl:value-of select="concat('Duration: ', $duration)"/><br/>
+
+            <xsl:variable name="newDateTime" select="$originalDateTime + $duration"/>
+            <xsl:value-of select="concat('New DateTime: ', $newDateTime)"/>
         </xsl:template>
 
         <xsl:template match="/">
@@ -76,8 +79,6 @@
         </xsl:template>
     </xsl:stylesheet>
 </script>
-
-
 
 
 
