@@ -30,25 +30,15 @@
 
 <script id="xsltData" type="text/xml">
     <?xml version="1.0" encoding="UTF-8"?>
-    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
         <xsl:output method="html" encoding="UTF-8" indent="yes"/>
         <xsl:param name="date-time"/>
 
+        <!-- Basic function to output date-time -->
         <xsl:template name="add-minutes">
             <xsl:param name="dateTime"/>
             <xsl:param name="minutes"/>
-            
-            <!-- Debug Original DateTime -->
-            <xsl:variable name="originalDateTime" select="xs:dateTime($dateTime)"/>
-            <xsl:value-of select="concat('Original DateTime: ', $originalDateTime)"/><br/>
-
-            <!-- Debug Duration -->
-            <xsl:variable name="duration" select="xs:dayTimeDuration(concat('PT', $minutes, 'M'))"/>
-            <xsl:value-of select="concat('Duration: ', $duration)"/><br/>
-
-            <!-- Debug New DateTime -->
-            <xsl:variable name="newDateTime" select="$originalDateTime + $duration"/>
-            <xsl:value-of select="concat('New DateTime: ', $newDateTime)"/>
+            <xsl:value-of select="$dateTime"/>
         </xsl:template>
 
         <xsl:template match="/">
@@ -80,6 +70,7 @@
         </xsl:template>
     </xsl:stylesheet>
 </script>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
