@@ -28,17 +28,23 @@
         </tasks>
     </script>
 
-<<script id="xsltData" type="text/xml">
+<script id="xsltData" type="text/xml">
     <?xml version="1.0" encoding="UTF-8"?>
-    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
         <xsl:output method="html" encoding="UTF-8" indent="yes"/>
         <xsl:param name="date-time"/>
 
-        <!-- Simple output of the date-time parameter for debugging -->
+        <!-- Simplified function to add minutes to date-time -->
         <xsl:template name="add-minutes">
             <xsl:param name="dateTime"/>
             <xsl:param name="minutes"/>
-            <xsl:value-of select="$dateTime"/>
+
+            <!-- Try using duration directly for debugging -->
+            <xsl:variable name="originalDateTime" select="xs:dateTime($dateTime)"/>
+            <xsl:variable name="duration" select="xs:dayTimeDuration('PT2H')"/> <!-- Adding 2 hours for testing -->
+            <xsl:variable name="newDateTime" select="$originalDateTime + $duration"/>
+
+            <xsl:value-of select="$newDateTime"/>
         </xsl:template>
 
         <xsl:template match="/">
