@@ -40,7 +40,7 @@
             <xsl:param name="minutes"/>
 
             <xsl:variable name="newDateTime">
-                <xsl:value-of select="date:add($dateTime, date:minutes-to-duration($minutes))"/>
+                <xsl:value-of select="concat($dateTime, ' + ', $minutes, ' minutes')"/>
             </xsl:variable>
 
             <xsl:value-of select="$newDateTime"/>
@@ -62,10 +62,7 @@
                             <td><xsl:value-of select="id"/></td>
                             <td><xsl:value-of select="name"/></td>
                             <td>
-                                <input type="datetime-local" value="{call-template name='add-minutes'}">
-                                    <xsl:with-param name="dateTime" select="$date-time"/>
-                                    <xsl:with-param name="minutes" select="120"/> <!-- Example: Add 120 minutes -->
-                                </input>
+                                <input type="datetime-local" value="{concat($date-time, ' + 120 minutes')}"/> <!-- Example: Add 120 minutes -->
                             </td>
                             <td><xsl:value-of select="description" disable-output-escaping="yes"/></td>
                         </tr>
