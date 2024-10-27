@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Scheduler</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Scheduler</h1>
+        <div class="controls">
+            <input type="datetime-local" id="date-time-input" />
+            <button id="transform-button">Set Start</button>
+        </div>
+        <table id="taskTable" class="display">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Start Display</th>
+                    <th>Offset (min)</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <script>
+        // Updated task data with start_offset
+        const tasks = [
+            {
+                id: 1,
+                name: "Task 1",
+                description: "First task",
+                start_offset: "120" // 2 hours in minutes
+            },
+            {
+                id: 2,
+                name: "Task 2",
+                description: "Second task",
+                start_offset: "30"  // 30 minutes
+            }
+        ];
+
+        function addOffset(dateTime, offsetMinutes) {
+            const date = new Date(dateTime);
+            date.setMinutes(date.getMinutes() + parseInt(offsetMinutes, 10));
+            return date.toISOString().slice(0, 16); // Format as YYYY-MM-DDTHH:mm
+        }
+
+        $(document).ready(function() {
+            let table = $('#taskTable').DataTable({
+                data: tasks,
+                columns: [
+                    { data: 'id' },
+                    { data: 'name' },
+                    { 
+                        data: null,
+                        render: function(data, type, row) {
+                            return ''; // Initially empty
+                        }
+                    },
+                    { data: 'start_offset' },
+                    { data: 'description' }
+                ]
+            });
+
+            $('#transform-button').on('click', function() {
+                const dateTime = $('#date-time-input').val();
+                if (dateTime) {
+                    table.destroy();
+                    table = $('#taskTable').DataTable({
+                        data: tasks,
+                        columns: [
+                            { data: 'id' },
+                            { data: 'name' },
+                            { 
+                                data: null,
+                                render: function(data, type, row) {
+                                    return addOffset(dateTime, row.start_offset);
+                                }
+                            },
+                            { data: 'start_offset' },
+                            { data: 'description' }
+                        ]
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
