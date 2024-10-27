@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Scheduler</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+    <h1>Task Scheduler</h1>
+    <input type="datetime-local" id="date-time-input" />
+    <button id="transform-button">Set Start</button>
+    <div id="result"></div>
+
+    <script id="xmlData" type="text/xml">
+        <tasks>
+            <task>
+                <id>1</id>
+                <name>Task 1</name>
+                <description>First task</description>
+            </task>
+            <task>
+                <id>2</id>
+                <name>Task 2</name>
+                <description>Second task</description>
+            </task>
+        </tasks>
+    </script>
+
+    <script id="xsltData" type="text/xml">
+        <?xml version="1.0" encoding="UTF-8"?>
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:output method="html" encoding="UTF-8" indent="yes"/>
+            <xsl:template match="/">
+                <table id="taskTable" class="display">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Start Display</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <xsl:for-each select="tasks/task">
+                            <tr>
+                                <td><xsl:value-of select="id"/></td>
+                                <td><xsl:value-of select="name"/></td>
+                                <td>
+                                    <input type="datetime-local" value="{current-dateTime()}"/>
+                                </td>
+                                <td><xsl:value-of select="description" disable-output-escaping="yes"/></td>
+                            </tr>
+                        </xsl:for-each>
+                    </tbody>
+                </table>
+            </xsl:template>
+        </xsl:stylesheet>
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Document loaded");
+        
+            var xmlContent = document.getElementById('xmlData').innerHTML.trim();
+            var xsltContent = document.getElementById('xsltData').innerHTML.trim();
+        
+            var parser = new DOMParser();
+            var xml = parser.parseFromString(xmlContent, "text/xml");
+            var xslt = parser.parseFromString(xsltContent, "text/xml");
+        
+            if (xml.getElementsByTagName("parsererror").length > 0) {
+                console.error("XML Parsing Error: " + xml.getElementsByTagName("parsererror")[0].textContent);
+            }
+        
+            if (xslt.getElementsByTagName("parsererror").length > 0) {
+                console.error("XSLT Parsing Error: " + xslt.getElementsByTagName("parsererror")[0].textContent);
+            }
+        
+            var xsltProcessor = new XSLTProcessor();
+            xsltProcessor.importStylesheet(xslt);
+            console.log("XSLT Processor imported stylesheet");
+        
+            document.getElementById('transform-button').addEventListener('click', function() {
+                console.log("Transform button clicked");
+                var dateTimeValue = document.getElementById('date-time-input').value;
+                console.log("Date-time input value:", dateTimeValue);
+        
+                xsltProcessor.setParameter(null, 'date-time', dateTimeValue);
+                console.log("Set date-time parameter in XSLT Processor");
+        
+                var resultDocument = xsltProcessor.transformToFragment(xml, document);
+                if (!resultDocument) {
+                    console.error("XSLT transformation failed to produce output");
+                    return;
+                }
+        
+                var container = document.getElementById('result');
+                container.innerHTML = '';
+                container.appendChild(resultDocument);
+                console.log("Result document appended to container");
+        
+                $('#taskTable').DataTable({
+                    pageLength: 10,
+                    order: [[0, 'asc']],
+                    columnDefs: [
+                        {
+                            targets: [3],
+                            orderable: false
+                        }
+                    ]
+                });
+                console.log("DataTable initialized");
+            });
+        });
+        </script>
+        
+</body>
+</html>
