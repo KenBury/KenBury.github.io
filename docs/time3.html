@@ -34,18 +34,19 @@
         <xsl:output method="html" encoding="UTF-8" indent="yes"/>
         <xsl:param name="date-time"/>
 
-        <!-- Simple function to add minutes to date-time -->
         <xsl:template name="add-minutes">
             <xsl:param name="dateTime"/>
             <xsl:param name="minutes"/>
-
-            <!-- Output intermediate steps for debugging -->
+            
+            <!-- Debug Original DateTime -->
             <xsl:variable name="originalDateTime" select="xs:dateTime($dateTime)"/>
             <xsl:value-of select="concat('Original DateTime: ', $originalDateTime)"/><br/>
 
+            <!-- Debug Duration -->
             <xsl:variable name="duration" select="xs:dayTimeDuration(concat('PT', $minutes, 'M'))"/>
             <xsl:value-of select="concat('Duration: ', $duration)"/><br/>
 
+            <!-- Debug New DateTime -->
             <xsl:variable name="newDateTime" select="$originalDateTime + $duration"/>
             <xsl:value-of select="concat('New DateTime: ', $newDateTime)"/>
         </xsl:template>
@@ -79,8 +80,6 @@
         </xsl:template>
     </xsl:stylesheet>
 </script>
-
-
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
