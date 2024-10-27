@@ -32,14 +32,16 @@
     <?xml version="1.0" encoding="UTF-8"?>
     <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
         <xsl:output method="html" encoding="UTF-8" indent="yes"/>
-        <xsl:param name="date-time" select="'2024-11-07T17:41'"/>
+        <xsl:param name="date-time"/>
 
+        <!-- Template to extract and add minutes -->
         <xsl:template name="add-minutes">
             <xsl:param name="dateTime"/>
             <xsl:param name="minutes"/>
 
-            <!-- Placeholder for date-time manipulation -->
-            <xsl:value-of select="$dateTime"/> <!-- Keeping it simple for debugging -->
+            <!-- Extract minutes from the time component -->
+            <xsl:variable name="currentMinutes" select="substring($dateTime, 15, 2)"/>
+            <xsl:value-of select="$currentMinutes + $minutes"/>
         </xsl:template>
 
         <xsl:template match="/">
