@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <style>
+        #graph {
+            width: 800px;
+            height: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="graph"></div>
+    
+    <py-config>
+        packages = ["networkx"]
+    </py-config>
+
+    <py-script>
+import networkx as nx
+import json
+import xml.etree.ElementTree as ET
+from js import Plotly, document
+
+# Sample XML string
+xml_string = """
+<root>
+    <employee>
+        <name>John Doe</name>
+        <title>Developer</title>
+        <department>Engineering</department>
+    </employee>
+    <employee>
+        <name>Jane Smith</name>
+        <title>Designer</title>
+        <department>Creative</department>
+    </employee>
+</root>
+"""
+
+# Create the graph
+G = nx.DiGraph()
+
+def build_graph(element, parent=None):
+    node_id = len(G.nodes())
+    G.add_node(node_id, name=element.tag)
+    if parent is not None:
+        G.add_edge(parent, node_id)
+    for child in element:
+        child_id = build_graph(child, node_id)
+    return node_id
+
+# Parse XML and build graph
+root = ET.fromstring(xml_string)
+build_graph(root)
+
+# Calculate layout
+pos = nx.spring_layout(G)
+
+# Prepare node data
+node_x = []
+node_y = []
+node_text = []
+for node in G.nodes():
+    x, y = pos[node]
+    node_x.append(x)
+    node_y.append(y)
+    node_text.append(G.nodes[node]['name'])
+
+nodes = {
+    'x': node_x,
+    'y': node_y,
+    'mode': 'markers+text',
+    'marker': {
+        'size': 20,
+        'color': '#69b3a2'
+    },
+    'text': node_text,
+    'textposition': 'top center',
+    'hoverinfo': 'text',
+    'type': 'scatter'
+}
+
+# Prepare edge data
+edge_x = []
+edge_y = []
+for edge in G.edges():
+    x0, y0 = pos[edge[0]]
+    x1, y1 = pos[edge[1]]
+    edge_x.extend([x0, x1, None])
+    edge_y.extend([y0, y1, None])
+
+edges = {
+    'x': edge_x,
+    'y': edge_y,
+    'mode': 'lines',
+    'line': {
+        'width': 1,
+        'color': '#888'
+    },
+    'hoverinfo': 'none',
+    'type': 'scatter'
+}
+
+# Layout configuration
+layout = {
+    'showlegend': False,
+    'hovermode': 'closest',
+    'margin': {'b': 20, 'l': 5, 'r': 5, 't': 40},
+    'annotations': [
+        {
+            'text': "XML Structure Visualization",
+            'showarrow': False,
+            'xref': 'paper',
+            'yref': 'paper',
+            'x': 0,
+            'y': 1.1
+        }
+    ],
+    'xaxis': {
+        'showgrid': False,
+        'zeroline': False,
+        'showticklabels': False
+    },
+    'yaxis': {
+        'showgrid': False,
+        'zeroline': False,
+        'showticklabels': False
+    },
+    'width': 800,
+    'height': 600
+}
+
+# Convert to JSON
+plot_data = json.dumps([edges, nodes])
+layout_json = json.dumps(layout)
+
+# Plot using Plotly
+Plotly.newPlot('graph', plot_data, layout_json)
+    </py-script>
+</body>
+</html>
