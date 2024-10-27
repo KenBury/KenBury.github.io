@@ -28,36 +28,39 @@
         </tasks>
     </script>
 
-    <script id="xsltData" type="text/xml">
-        <?xml version="1.0" encoding="UTF-8"?>
-        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-            <xsl:output method="html" encoding="UTF-8" indent="yes"/>
-            <xsl:template match="/">
-                <table id="taskTable" class="display">
-                    <thead>
+<script id="xsltData" type="text/xml">
+    <?xml version="1.0" encoding="UTF-8"?>
+    <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+        <xsl:output method="html" encoding="UTF-8" indent="yes"/>
+        <xsl:param name="date-time"/>
+
+        <xsl:template match="/">
+            <table id="taskTable" class="display">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Start Display</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <xsl:for-each select="tasks/task">
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Start Display</th>
-                            <th>Description</th>
+                            <td><xsl:value-of select="id"/></td>
+                            <td><xsl:value-of select="name"/></td>
+                            <td>
+                                <input type="datetime-local" value="{$date-time}"/>
+                            </td>
+                            <td><xsl:value-of select="description" disable-output-escaping="yes"/></td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <xsl:for-each select="tasks/task">
-                            <tr>
-                                <td><xsl:value-of select="id"/></td>
-                                <td><xsl:value-of select="name"/></td>
-                                <td>
-                                    <input type="datetime-local" value="{current-dateTime()}"/>
-                                </td>
-                                <td><xsl:value-of select="description" disable-output-escaping="yes"/></td>
-                            </tr>
-                        </xsl:for-each>
-                    </tbody>
-                </table>
-            </xsl:template>
-        </xsl:stylesheet>
-    </script>
+                    </xsl:for-each>
+                </tbody>
+            </table>
+        </xsl:template>
+    </xsl:stylesheet>
+</script>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
