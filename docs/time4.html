@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Task Scheduler</title>
-    <!-- DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css"/>
-    <!-- DataTables Buttons & Excel Export CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css"/>
     
-    <!-- Required JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
-    <!-- Excel Export Dependencies -->
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
@@ -25,7 +21,6 @@
         .controls {
             margin-bottom: 20px;
         }
-        /* Style the export button to match the Set Start button */
         .dt-buttons {
             margin-bottom: 10px;
         }
@@ -39,6 +34,30 @@
         }
         .dt-button:hover {
             background-color: #e9ecef;
+        }
+        /* Style for HTML content in description */
+        .description-content {
+            max-width: 400px;
+            overflow-x: auto;
+        }
+        .description-content table {
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        .description-content td, .description-content th {
+            border: 1px solid #ddd;
+            padding: 4px 8px;
+        }
+        .description-content ul, .description-content ol {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .description-content a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .description-content a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -63,17 +82,40 @@
     </div>
 
     <script>
+        // Sample tasks with HTML content in descriptions
         const tasks = [
             {
                 id: 1,
                 name: "Task 1",
-                description: "First task",
+                description: `
+                    <div style="color: #2c5282;">
+                        <h4>Important Task</h4>
+                        <ul>
+                            <li>First item</li>
+                            <li>Second item with <span style="color: red;">urgent</span> flag</li>
+                        </ul>
+                        <table>
+                            <tr><th>Header 1</th><th>Header 2</th></tr>
+                            <tr><td>Data 1</td><td>Data 2</td></tr>
+                        </table>
+                        <a href="#">View details</a>
+                    </div>
+                `,
                 start_offset: "360"
             },
             {
                 id: 2,
                 name: "Task 2",
-                description: "Second task",
+                description: `
+                    <div style="color: #2b6cb0;">
+                        <p>Regular task with:</p>
+                        <ol>
+                            <li>Numbered item 1</li>
+                            <li>Numbered item 2</li>
+                        </ol>
+                        <p style="background-color: #fff3cd; padding: 5px;">Warning: Requires review</p>
+                    </div>
+                `,
                 start_offset: "30"
             }
         ];
@@ -92,74 +134,71 @@
             return `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
+        // Function to strip HTML for Excel export
+        function stripHTML(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || '';
+        }
+
         $(document).ready(function() {
-            // Initial table setup with export button
-            let table = $('#taskTable').DataTable({
-                data: tasks,
-                dom: 'Bfrtip', // Add buttons to the DOM
-                buttons: [
-                    {
-                        extend: 'excel',
-                        text: 'Export to Excel',
-                        title: 'Task Schedule',
-                        filename: function() {
-                            // Generate filename with current date
-                            const now = new Date();
-                            return `task_schedule_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            function initializeTable(dateTime = null) {
+                return $('#taskTable').DataTable({
+                    data: tasks,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            text: 'Export to Excel',
+                            title: 'Task Schedule',
+                            filename: function() {
+                                const now = new Date();
+                                return `task_schedule_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+                            },
+                            exportOptions: {
+                                columns: [0, 1, 2, 3, 4],
+                                format: {
+                                    body: function(data, row, column) {
+                                        // Strip HTML only from description column
+                                        if (column === 4) {
+                                            return stripHTML(data);
+                                        }
+                                        return data;
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    columns: [
+                        { data: 'id' },
+                        { data: 'name' },
+                        { 
+                            data: null,
+                            render: function(data, type, row) {
+                                return dateTime ? addOffset(dateTime, row.start_offset) : '';
+                            }
                         },
-                        exportOptions: {
-                            columns: [0, 1, 2, 3, 4] // Export all columns
+                        { data: 'start_offset' },
+                        { 
+                            data: 'description',
+                            render: function(data, type, row) {
+                                if (type === 'display') {
+                                    return `<div class="description-content">${data}</div>`;
+                                }
+                                return stripHTML(data); // For sorting/filtering
+                            }
                         }
-                    }
-                ],
-                columns: [
-                    { data: 'id' },
-                    { data: 'name' },
-                    { 
-                        data: null,
-                        render: function(data, type, row) {
-                            return ''; // Initially empty
-                        }
-                    },
-                    { data: 'start_offset' },
-                    { data: 'description' }
-                ]
-            });
+                    ]
+                });
+            }
+
+            let table = initializeTable();
 
             $('#transform-button').on('click', function() {
                 const dateTime = $('#date-time-input').val();
                 if (dateTime) {
                     table.destroy();
-                    table = $('#taskTable').DataTable({
-                        data: tasks,
-                        dom: 'Bfrtip',
-                        buttons: [
-                            {
-                                extend: 'excel',
-                                text: 'Export to Excel',
-                                title: 'Task Schedule',
-                                filename: function() {
-                                    const now = new Date();
-                                    return `task_schedule_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
-                                },
-                                exportOptions: {
-                                    columns: [0, 1, 2, 3, 4]
-                                }
-                            }
-                        ],
-                        columns: [
-                            { data: 'id' },
-                            { data: 'name' },
-                            { 
-                                data: null,
-                                render: function(data, type, row) {
-                                    return addOffset(dateTime, row.start_offset);
-                                }
-                            },
-                            { data: 'start_offset' },
-                            { data: 'description' }
-                        ]
-                    });
+                    table = initializeTable(dateTime);
                 }
             });
         });
