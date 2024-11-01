@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template List</title>
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowgroup/1.4.1/css/rowGroup.dataTables.min.css">
+    
+    <!-- jQuery and DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/rowgroup/1.4.1/js/dataTables.rowGroup.min.js"></script>
+
+    <style>
+        .dtrg-group {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            padding: 10px !important;
+        }
+        .dtrg-group td {
+            padding: 10px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Template List</h1>
+        <table id="templateTable" class="display responsive nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Workspace</th>
+                    <th>Template ID</th>
+                    <th>Template Name</th>
+                    <th>Version</th>
+                    <th>Template Link</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Create a workspace lookup object
+            let workspaceLookup = {};
+            
+            // Function to generate template URL
+            function generateTemplateUrl(workspaceId, templateId, version) {
+                return `https://testsite/templates/tb_${workspaceId}_${templateId}_${version}.html`;
+            }
+            
+            // Load and parse XML file
+            $.ajax({
+                url: './templates.xml',
+                dataType: 'xml',
+                success: function(data) {
+                    // First build the workspace lookup
+                    $(data).find('workspace').each(function() {
+                        const workspaceId = $(this).find('workspaceid').text();
+                        const workspaceName = $(this).find('workspacename').text();
+                        workspaceLookup[workspaceId] = workspaceName;
+                    });
+
+                    // Initialize DataTable
+                    const table = $('#templateTable').DataTable({
+                        responsive: true,
+                        order: [[0, 'asc'], [2, 'asc']], // Sort by workspace, then template name
+                        rowGroup: {
+                            dataSrc: 0, // Group by workspace column
+                            startRender: function(rows, group) {
+                                return group; // Display workspace name as group header
+                            }
+                        },
+                        data: Array.from($(data).find('template')).map(template => {
+                            const $template = $(template);
+                            const workspaceId = $template.find('workspaceid').text();
+                            const templateId = $template.find('id').text();
+                            const version = $template.find('version').text();
+                            const templateUrl = generateTemplateUrl(workspaceId, templateId, version);
+                            
+                            return [
+                                workspaceLookup[workspaceId] || workspaceId, // Workspace name for grouping
+                                templateId,
+                                $template.find('name').text(),
+                                version,
+                                `<a href="${templateUrl}" class="template-link">View Template</a>`
+                            ];
+                        }),
+                        columns: [
+                            { title: "Workspace", visible: false }, // Hidden column for grouping
+                            { title: "Template ID" },
+                            { title: "Template Name" },
+                            { title: "Version" },
+                            { 
+                                title: "Template Link",
+                                render: function(data, type, row) {
+                                    if (type === 'display') {
+                                        return data;
+                                    }
+                                    return data;
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading XML:', error);
+                    alert('Error loading template data. Please try again later.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
