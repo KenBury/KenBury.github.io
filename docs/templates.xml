@@ -2,37 +2,37 @@
 <root>
     <workspaces>
         <workspace>
-            <workspaceid>WS001</workspaceid>
+            <workspaceid>100</workspaceid>
             <workspacename>Development Environment</workspacename>
         </workspace>
         <workspace>
-            <workspaceid>WS002</workspaceid>
+            <workspaceid>200</workspaceid>
             <workspacename>Production Environment</workspacename>
         </workspace>
         <workspace>
-            <workspaceid>WS003</workspaceid>
+            <workspaceid>300</workspaceid>
             <workspacename>Testing Environment</workspacename>
         </workspace>
     </workspaces>
     
     <templates>
         <template>
-            <id>TEMP001</id>
+            <id>100</id>
             <name>Basic Web Application</name>
-            <version>1.0.0</version>
-            <workspaceid>WS001</workspaceid>
+            <version>10</version>
+            <workspaceid>100</workspaceid>
         </template>
         <template>
-            <id>TEMP002</id>
+            <id>200</id>
             <name>Database Configuration</name>
-            <version>2.1.0</version>
-            <workspaceid>WS001</workspaceid>
+            <version>20</version>
+            <workspaceid>100</workspaceid>
         </template>
         <template>
-            <id>TEMP003</id>
+            <id>300</id>
             <name>Production Deployment</name>
-            <version>1.5.0</version>
-            <workspaceid>WS002</workspaceid>
+            <version>15</version>
+            <workspaceid>200</workspaceid>
         </template>
     </templates>
 </root>
