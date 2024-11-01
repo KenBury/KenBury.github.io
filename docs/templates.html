@@ -25,11 +25,25 @@
         .dtrg-group td {
             padding: 10px !important;
         }
+        .workspace-selector {
+            margin: 20px 0;
+            padding: 8px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+        .container {
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Template List</h1>
+        
+        <select id="workspaceFilter" class="workspace-selector">
+            <option value="">All Workspaces</option>
+        </select>
+
         <table id="templateTable" class="display responsive nowrap" style="width:100%">
             <thead>
                 <tr>
@@ -49,6 +63,7 @@
         $(document).ready(function() {
             // Create a workspace lookup object
             let workspaceLookup = {};
+            let table;
             
             // Function to generate template URL
             function generateTemplateUrl(workspaceId, templateId, version) {
@@ -60,15 +75,24 @@
                 url: './templates.xml',
                 dataType: 'xml',
                 success: function(data) {
-                    // First build the workspace lookup
+                    // First build the workspace lookup and populate workspace dropdown
+                    const workspaceSelect = $('#workspaceFilter');
                     $(data).find('workspace').each(function() {
                         const workspaceId = $(this).find('workspaceid').text();
                         const workspaceName = $(this).find('workspacename').text();
                         workspaceLookup[workspaceId] = workspaceName;
+                        
+                        // Add option to workspace selector
+                        workspaceSelect.append(
+                            $('<option>', {
+                                value: workspaceName,
+                                text: workspaceName
+                            })
+                        );
                     });
 
                     // Initialize DataTable
-                    const table = $('#templateTable').DataTable({
+                    table = $('#templateTable').DataTable({
                         responsive: true,
                         order: [[0, 'asc'], [2, 'asc']], // Sort by workspace, then template name
                         rowGroup: {
@@ -107,6 +131,20 @@
                                 }
                             }
                         ]
+                    });
+
+                    // Add workspace filter functionality
+                    $('#workspaceFilter').on('change', function() {
+                        const selectedWorkspace = $(this).val();
+                        
+                        // If "All Workspaces" is selected, clear the filter
+                        if (!selectedWorkspace) {
+                            table.search('').draw();
+                            return;
+                        }
+                        
+                        // Filter the table to show only the selected workspace
+                        table.search(selectedWorkspace).draw();
                     });
                 },
                 error: function(xhr, status, error) {
